@@ -1,0 +1,41 @@
+---
+- name: Upgrade all distribution packages
+  apt: upgrade=dist
+       update_cache=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - upgrade
+
+- name: Add required packages
+  apt: upgrade=full
+       update_cache=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - upgrade
+
+- name: Download web server
+  git: repo=https://github.com/alanquillin/myhvac_web_rails.git
+       dest={{ install_dir }}/src/web
+  become: yes
+  become_user: myhvac
+  tags:
+    - upgrade
+
+- name: Download service
+  git: repo=https://github.com/alanquillin/myhvac_service.git
+       dest={{install_dir}}/src/service
+  become: yes
+  become_user: myhvac
+  tags:
+    - upgrade
+
+- name: Run rake preconfigurations and run database migration
+  command: /usr/local/bin/bundle exec rake assets:precompile db:migrate RAILS_ENV=production
+  args:
+    chdir: {{ inmstall_dir }}/src/web
+  become: yes
+  become_user: myhvac
+  tags:
+    - upgrade

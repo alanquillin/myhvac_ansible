@@ -1,0 +1,10 @@
+---
+- name: Download hvac scripts
+  git: repo=https://github.com/alanquillin/myhvac_scripts.git
+       dest={{install_dir}}/src/scripts
+       force=yes
+       update=yes
+  become: yes
+  become_user: myhvac
+  tags:
+    - scripts

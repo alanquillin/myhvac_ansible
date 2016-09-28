@@ -1,0 +1,6 @@
+---
+apt_packages:
+- build-essential
+- libapache2-mod-passenger
+- apache2
+- zlib1g-dev

@@ -1,0 +1,33 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: "new_hostname"
+      prompt: "New hostname"
+      default: "myhvac.local"
+      private: false
+    - name: "new_password"
+      prompt: "New myhvac user password"
+      private: true
+    - name: "install_dir"
+      prompt: "Install directory"
+      default: "/opt/MyHVAC"
+      private: false
+    - name: "database_host"
+      prompt: "Database IP or hostname"
+      default: "localhost"
+      private: false
+    - name: "database_username"
+      prompt: "Database username"
+      default: "myhvac"
+      private: false
+    - name: "database_password"
+      prompt: "Database password"
+      default: "myhvac"
+      private: true
+  roles:
+    - { role: create_user }
+    - { role: init }
+    - { role: common }
+    - { role: database }
+    - { role: service }
+    - { role: web-server }

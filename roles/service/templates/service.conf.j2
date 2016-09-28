@@ -1,0 +1,77 @@
+[io]
+# Pins for GPIO mode = BOARD
+# green_pin_out = 36
+# green_pin_fb = 18
+# green_pin_lb = 33
+# white_pin_out = 32
+# white_pin_fb = 22
+# white_pin_lb = 31
+# yellow_pin_out = 38
+# yellow_pin_fb = 16
+# yellow_pin_lb = 35
+# aux_pin_out = 40
+# aux_pin_fb = 12
+# aux_pin_lb = 37
+# pin_mode = board
+
+# Pins for GPIO mode = BCM
+white_pin_out = 12
+white_pin_fb = 25
+white_pin_lb = 6
+green_pin_out = 16
+green_pin_fb = 24
+green_pin_lb = 13
+yellow_pin_out = 20
+yellow_pin_fb = 23
+yellow_pin_lb = 19
+aux_pin_out = 21
+aux_pin_fb = 18
+aux_pin_lb = 26
+pin_mode = bcm
+
+[rest_api]
+# debug = False
+# port = 8080
+
+[hvac]
+# on_mode_change_fan_interval = 120
+
+[program_manager]
+# sleep_seconds = 300
+
+[display]
+# type = lcd
+
+[lcd]
+# driver = lcd2004
+# bus = 1
+# address = 0x27
+# gpio_count = 8
+
+[db]
+connection_string = postgres://{{database_username}}:{{database_password}}@{{database_host}}:5432/myhvac
+
+# Logging configuration
+[loggers]
+keys = root
+
+[handlers]
+keys = console
+
+[formatters]
+keys = myhvac
+
+[logger_root]
+level = DEBUG
+handlers = console
+
+[handler_console]
+class = StreamHandler
+level = DEBUG
+formatter = myhvac
+args = (sys.stderr,)
+
+[formatter_myhvac]
+# format = %(asctime)s [myhvac] %(levelname)-8s: %(name)s: %(message)s
+format = %(levelname)-8s: %(name)s: %(message)s
+class = logging.Formatter

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: "install_dir"
+      prompt: "Install directory"
+      default: "/opt/MyHVAC"
+      private: false
+  roles:
+    - { role: rvm }

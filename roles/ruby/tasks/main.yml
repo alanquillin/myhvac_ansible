@@ -1,0 +1,23 @@
+---
+- name: Updating apt package cache
+  apt: update_cache=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - ruby
+
+- name: Installing ruby via apt
+  apt: name="{{item}}"
+       state=latest
+  with_items: "{{ apt_packages }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - ruby
+
+- name: Adding --no-document to ~/.gemrc
+  command: "echo \"gem: --no-document\" >> ~/.gemrc"
+  become: yes
+  become_user: myhvac
+  tags:
+    - ruby

@@ -1,0 +1,32 @@
+---
+- name: Create myhvac Group
+  group: state=present
+         name=myhvac
+         system=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - create_user
+
+- name: Create myhvac User
+  user: name=myhvac
+        password={{ new_password |password_hash('sha512') }}
+        groups=myhvac,adm,dialout,sudo,audio,video,plugdev,users,input,netdev,spi,i2c,gpio
+        state=present
+        update_password=on_create
+  become: yes
+  become_method: sudo
+  tags:
+    - create_user
+
+- name: Copy sudoer dropin file
+  copy: src=sudoers_dropin
+        dest=/etc/sudoers.d/myhvac
+        owner=root
+        group=root
+        mode="0600"
+  become: yes
+  become_method: sudo
+  tags:
+    - create_user
+    - add_sudoer

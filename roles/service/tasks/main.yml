@@ -1,0 +1,105 @@
+---
+- name: Add required packages
+  apt: name={{item}}
+       state=latest
+       update_cache=yes
+  with_items:
+    - python-smbus
+    - i2c-tools
+    - libmysqlclient-dev
+    - python-dev
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Add i2c modules to /etc/modules
+  lineinfile: dest=/etc/modules
+              line="{{ item }}"
+  with_items:
+    - i2c-bcm2708
+    - i2c-dev
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Remove modules from blacklist
+  lineinfile: dest=/etc/modprobe.d/raspi-blacklist.conf
+              line="{{ item }}"
+              state=absent
+  with_items:
+    - blacklist i2c-bcm2708
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Download service
+  git: repo=https://github.com/alanquillin/myhvac_service.git
+       dest={{install_dir}}/src/service
+  become: yes
+  become_user: myhvac
+  tags:
+    - service
+
+- name: Create myhvac directory
+  file: path=/etc/MyHVAC
+        mode=0755
+        state=directory
+        owner=myhvac
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Install service config
+  template: src=service.conf.j2
+            dest=/etc/MyHVAC/service.conf
+  become: yes
+  become_user: myhvac
+  tags:
+    - service
+
+- name: Install service
+  pip: name={{install_dir}}/src/service
+       virtualenv={{install_dir}}
+       extra_args="-e "
+  become: yes
+  become_user: myhvac
+  ignore_errors: yes
+  tags:
+    - service
+
+- name: Copy myhvac-service file to {{install_dir}}/bin
+  template: src=myhvac-service.j2
+            dest={{install_dir}}/bin/myhvac-service
+            mode=0775
+  become: yes
+  become_user: myhvac
+  tags:
+    - service
+
+- name: Install Service systemd Unit
+  template: src=myhvac_service.service.j2
+            dest=/etc/systemd/system/myhvac_service.service
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Enable and start service
+  service: name=myhvac_service
+           enabled=yes
+           state=restarted
+  become: yes
+  become_method: sudo
+  tags:
+    - service

@@ -1,0 +1,59 @@
+---
+- name: Upgrade all existing packages
+  apt: upgrade=dist
+       update_cache=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - common
+
+- name: Add required packages
+  apt: name={{item}}
+       state=latest
+       update_cache=yes
+  with_items:
+    - vim
+    - ipython
+    - curl
+    - git
+    - python-pip
+    - tmux
+    - python-smbus
+    - i2c-tools
+    - python-dev
+    - libpq-dev
+  become: yes
+  become_method: sudo
+  tags:
+    - common
+
+- name: Update pip
+  pip: name=pip
+       state=latest
+  become: yes
+  become_method: sudo
+  tags:
+    - common
+
+- name: Copy dot files
+  copy: src={{item}}
+        dest=~/{{item}}
+  with_items:
+    - .bashrc
+    - .git-completion.bash
+    - .git-prompt.sh
+    - .tmux.conf
+  become: yes
+  become_user: myhvac
+  tags:
+    - common
+
+- name: Copy dot file tamplates
+  template: src={{item}}.j2
+            dest=~/{{item}}
+  with_items:
+    - .bash_aliases
+  become: yes
+  become_user: myhvac
+  tags:
+    - common

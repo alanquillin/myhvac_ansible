@@ -1,0 +1,3 @@
+---
+- name: set new user password
+  service: name=myhvac-service enabled=yes state=restarted

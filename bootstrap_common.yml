@@ -1,0 +1,14 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: "new_password"
+      prompt: "New password"
+      private: true
+    - name: "install_dir"
+      prompt: "Install directory"
+      default: "/opt/MyHVAC"
+      private: false
+  roles:
+    - { role: create_user }
+    - { role: init }
+    - { role: common }

@@ -1,0 +1,44 @@
+---
+rvm_rubies:
+  - "ruby-2.3.1"
+
+rvm_delete_rubies: ''
+
+rvm_install_flags: '--auto-dotfiles'
+
+rvm_ruby_install_flags: ''
+
+rvm_version: 'stable'
+
+rvm_check_for_updates: yes
+
+rvm_temp_download_path: '/tmp'
+
+rvm_default_ruby_version: '{{ rvm_rubies | last if rvm_rubies and rvm_rubies is iterable else "" }}'
+
+rvm_binary_path: '{{ rvm_install_path }}/bin/rvm'
+
+rvm_symlink_binaries:
+  - 'bundle'
+  - 'bundler'
+  - 'erb'
+  - 'executable-hooks-uninstaller'
+  - 'gem'
+  - 'irb'
+  - 'rake'
+  - 'rdoc'
+  - 'ri'
+  - 'ruby'
+  - 'testrb'
+
+rvm_symlink_to: '/usr/local/bin'
+
+rvm_gpg_key_server: "hkp://keys.gnupg.net"
+rvm_gpg_keys: "409B6B1796C275462A1703113804BB82D39DC0E3"
+
+rvm_latest_installer: 'https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer'
+
+rvm_autolib_mode: 3
+
+redhat_packages:
+ - gnupg

@@ -1,0 +1,83 @@
+---
+- set_fact:
+    rvm_install_path: '/usr/local/rvm'
+
+- name: Detect rvm binary
+  stat: path='{{ rvm_binary_path }}'
+  register: rvm_binary
+  tags:
+    - rvm
+
+- name: Detect rvm installer
+  stat: path='{{ rvm_temp_download_path }}/rvm-installer.sh'
+  register: rvm_installer
+  tags:
+    - rvm
+
+- name: Detect current rvm version
+  command: '{{ rvm_binary_path }} version'
+  changed_when: False
+  register: rvm_current_version
+  when: rvm_binary.stat.exists
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Install rvm installer
+  get_url:
+    url: '{{ rvm_latest_installer }}'
+    dest: '{{ rvm_temp_download_path }}/rvm-installer.sh'
+  when: not rvm_installer.stat.exists
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Configure rvm installer
+  file:
+    path: '{{ rvm_temp_download_path }}/rvm-installer.sh'
+    mode: 0755
+  when: not rvm_binary.stat.exists
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Import GPG keys
+  command: 'gpg --keyserver {{ rvm_gpg_key_server }} --recv-keys {{ rvm_gpg_keys }}'
+  changed_when: False
+  when: rvm_gpg_keys != ''
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Install rvm
+  command: >
+    {{ rvm_temp_download_path }}/rvm-installer.sh {{ rvm_version }}
+    {{ rvm_install_flags }}
+  when: not rvm_binary.stat.exists
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Update rvm
+  shell: '{{ rvm_binary_path }} get {{ rvm_version }} && {{ rvm_binary_path }} reload'
+  changed_when: False
+  when: rvm_binary.stat.exists and rvm_check_for_updates
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- name: Configure rvm
+  command: '{{ rvm_binary_path }} autolibs {{ rvm_autolib_mode }}'
+  when: not rvm_binary.stat.exists
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
+- include: "install_rubies.yml"

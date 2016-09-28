@@ -1,0 +1,81 @@
+---
+- name: Download web server code
+  git: repo=https://github.com/alanquillin/myhvac_web_rails.git
+       dest={{ install_dir }}/src/web
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Run bundle install
+  command: /usr/local/bin/bundle install
+  args:
+    chdir: '{{ install_dir }}/src/web'
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Copy application.yml config file
+  template: src=application.yml.j2
+            dest=/etc/MyHVAC/application.yml
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Symlink application.yml config file to application source
+  file: state=link
+        src='/etc/MyHVAC/application.yml'
+        dest='{{ install_dir }}/src/web/config/application.yml'
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Copy secrets.yml
+  copy: src=secrets.yml
+        dest='{{ install_dir }}/src/web/config/secrets.yml'
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Run rake preconfigurations and run database setup
+  command: /usr/local/bin/bundle exec rake assets:precompile db:migrate RAILS_ENV=production
+  args:
+    chdir: '{{ install_dir }}/src/web'
+  become: yes
+  become_user: myhvac
+  tags:
+    - web
+
+- name: Copying over the apache config file
+  template: src=myhvac_web.conf.j2
+            dest=/etc/apache2/sites-available/myhvac_web.conf
+  become: yes
+  become_method: sudo
+  tags:
+    - web
+
+- name: Removing existing default apache config
+  file: path=/etc/apache2/sites-enabled/000-default.conf
+        state='absent'
+  become: yes
+  become_method: sudo
+  tags:
+    - web
+
+- name: Symlink apache config to /etc/apache2/sites-enabled
+  file: state=link
+        src=/etc/apache2/sites-available/myhvac_web.conf
+        dest=/etc/apache2/sites-enabled/myhvac_web.conf
+  become: yes
+  become_method: sudo
+  tags:
+    - web
+
+- name: Restart apache
+  command: apache2ctl restart
+  become: yes
+  become_method: sudo

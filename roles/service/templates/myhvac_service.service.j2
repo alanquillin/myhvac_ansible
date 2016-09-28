@@ -1,0 +1,15 @@
+[Unit]
+Description=MyHVAC Service
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+Group=myhvac
+ExecStart={{ install_dir}}/bin/myhvac-service \
+          --log-config-file /etc/MyHVAC/service.conf \
+          --config-file /etc/MyHVAC/service.conf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

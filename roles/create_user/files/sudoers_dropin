@@ -1,0 +1,2 @@
+Defaults>myhvac   !lecture
+myhvac ALL=(ALL) NOPASSWD:ALL

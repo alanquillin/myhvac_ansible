@@ -1,0 +1,63 @@
+---
+- name: Setting new hostname
+  hostname: name={{ new_hostname }}
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- name: Installing virtualenv
+  apt: name={{item}}
+       state=latest
+       update_cache=yes
+  with_items:
+    - python-virtualenv
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- name: Create {{install_dir}} directory
+  file: path={{install_dir}}
+        mode=0755
+        state=directory
+        owner=myhvac
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- stat: path={{install_dir}}/bin/activate
+  register: virtualenv_stats
+  tags:
+    - init
+
+- name: Create myhvac virtualenv (if it does not already exist)
+  command: "{{item}}"
+  with_items:
+    - virtualenv --system-site-packages --prompt="(MyHVAC_Env) " {{install_dir}}
+  become: yes
+  become_user: myhvac
+  when: not virtualenv_stats.stat.exists
+  tags:
+    - init
+
+- name: Update pip
+  pip: name=pip
+       state=latest
+       virtualenv={{install_dir}}
+  become: yes
+  become_user: myhvac
+  tags:
+    - init
+
+- name: Install pip packages
+  pip: name="{{item}}"
+       virtualenv={{install_dir}}
+  with_items:
+    - tox
+    - flake8
+  become: yes
+  become_user: myhvac
+  tags:
+    - init
