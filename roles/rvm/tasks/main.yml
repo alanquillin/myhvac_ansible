@@ -1,7 +1,4 @@
 ---
-- set_fact:
-    rvm_install_path: '/usr/local/rvm'
-
 - name: Detect rvm binary
   stat: path='{{ rvm_binary_path }}'
   register: rvm_binary
@@ -80,4 +77,24 @@
   tags:
     - rvm
 
+- name: Adding myhvac user to rvm group
+  user: name=myhvac
+        group=myhvac
+        groups=rvm
+        append=yes
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm
+
 - include: "install_rubies.yml"
+
+- name: Change file permissions on
+  file:
+    path: '{{ rvm_install_path }}'
+    owner: myhvac
+    group: myhvac
+  become: yes
+  become_method: sudo
+  tags:
+    - rvm

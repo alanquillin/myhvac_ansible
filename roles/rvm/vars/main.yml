@@ -1,4 +1,6 @@
 ---
+rvm_install_path: '/usr/local/rvm'
+
 rvm_rubies:
   - "ruby-2.3.1"
 

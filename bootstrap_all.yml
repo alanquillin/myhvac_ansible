@@ -28,6 +28,7 @@
     - { role: create_user }
     - { role: init }
     - { role: common }
+    - { role: scripts }
     - { role: database }
     - { role: service }
     - { role: web-server }

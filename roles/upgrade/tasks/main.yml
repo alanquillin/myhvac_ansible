@@ -31,11 +31,25 @@
   tags:
     - upgrade
 
-- name: Run rake preconfigurations and run database migration
-  command: /usr/local/bin/bundle exec rake assets:precompile db:migrate RAILS_ENV=production
+- name: Run bundle install
+  command: /usr/local/bin/bundle install
   args:
-    chdir: {{ inmstall_dir }}/src/web
+    chdir: {{ install_dir }}/src/web
   become: yes
   become_user: myhvac
   tags:
     - upgrade
+
+- name: Run rake preconfigurations and run database migration
+  command: /usr/local/bin/bundle exec rake assets:precompile db:migrate RAILS_ENV=production
+  args:
+    chdir: {{ install_dir }}/src/web
+  become: yes
+  become_user: myhvac
+  tags:
+    - upgrade
+
+- name: Restart apache
+  command: apache2ctl restart
+  become: yes
+  become_method: sudo
